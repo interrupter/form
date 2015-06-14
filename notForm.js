@@ -69,11 +69,17 @@ notForm.prototype.buildFormElement = function (fieldName) {
         fieldValue: (params.hasOwnProperty('data') && params.data.hasOwnProperty(fieldName))?params.data[fieldName]:'',
         fieldName: fieldName,
         fieldId: fieldName+'Input',
-        fieldPlaceHolder: field.hasOwnProperty('placeholder')?field.placeholder:''
+        fieldPlaceHolder: field.hasOwnProperty('placeholder')?field.placeholder:'',
+        optionsLib: (params.hasOwnProperty(fieldName+'Lib'))?params[fieldName+'Lib']:[]
+    };
+
+    var data = {
+        value:  helpers.fieldValue
     };
     return (new notTemplate({
             template: this._getFormElementTemplate(field.type, true),
-            helpers: helpers
+            helpers: helpers,
+            data: data
         })).exec();
 };
 
@@ -165,11 +171,35 @@ notForm.prototype._getFormTitle = function () {
 notForm.prototype._collectFieldsDataToRecord = function(){
     var params = this._getParams(),
         record = params.data,
-        dataRaw = this._working.resultForm.find('form').serializeArray(),
-        i = 0;
-    for(i=0;i<dataRaw.length;i++){
-        record.setAttr(dataRaw[i].name, dataRaw[i].value);
+        scenario = this._getScenario(),
+        fieldsTypes = this._getFormFieldsTypes(),
+        $form = $(this._working.resultForm.find('form')),
+        i = 0,
+        field = null,
+        fieldName = null,
+        fieldValue = null;
+
+    for(i = 0; i < scenario.fields.length; i++){
+        fieldName = scenario.fields[i];
+        field = this._getFormField(fieldName);
+        switch(field.type){
+            case 'text':
+                fieldValue = $form.find('[name="'+fieldName+'"]').val();
+                break;
+            case 'select':
+                fieldValue = $form.find('[name="'+fieldName+'"]').val();
+                break;
+            case 'textarea':
+                fieldValue = $form.find('[name="'+fieldName+'"]').val();
+                break;
+            case 'checkbox':
+                fieldValue = $form.find('[name="'+fieldName+'"]').prop('checked');
+                break;
+            case 'submit': continue;
+        }
+        record.setAttr(fieldName, fieldValue);
     }
+
     record['$'+params.actionName](this._onSubmitSuccess.bind(this), this._validationErrorsHandling.bind(this));
 };
 
