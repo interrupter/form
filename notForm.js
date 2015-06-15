@@ -70,6 +70,7 @@ notForm.prototype.buildFormElement = function (fieldName) {
         fieldName: fieldName,
         fieldId: fieldName+'Input',
         fieldPlaceHolder: field.hasOwnProperty('placeholder')?field.placeholder:'',
+        option:field.hasOwnProperty('option')?field.option: {value: '_id', label: 'title'},
         optionsLib: (params.hasOwnProperty(fieldName+'Lib'))?params[fieldName+'Lib']:[]
     };
 
